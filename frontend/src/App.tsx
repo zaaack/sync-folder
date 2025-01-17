@@ -16,6 +16,7 @@ import {
   SaveConfig,
 } from '../wailsjs/go/main/App'
 import { main } from '../wailsjs/go/models'
+import { WindowSetDarkTheme } from '../wailsjs/runtime/runtime'
 import { FolderOpenOutlined } from '@ant-design/icons'
 
 function FolderInput(props: {
@@ -69,6 +70,7 @@ function App() {
       setInterval(() => {
         ReadLogs().then(setLogs)
       }, 5000)
+      WindowSetDarkTheme()
   }, [])
   if (!config) return <h1>Loading...</h1>
 
@@ -163,7 +165,7 @@ function App() {
       />
       <div className=''>
         <h2>Logs</h2>
-        <div id="logs">
+        <div className="logs">
           {logs.map((v, i) => (
             <div key={i}>{v}</div>
           ))}

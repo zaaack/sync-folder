@@ -215,7 +215,7 @@ func diffAndSync(src, dist string) error {
 
 	for _, item := range srcPathItems {
 		distPath := getDistPathFromSrc(src, dist, item.path)
-		logrus.Infof("distPath: %s %s %s %s", src, dist, item.path, distPath)
+		// logrus.Infof("distPath: %s %s %s %s", src, dist, item.path, distPath)
 		distFilesFromSrc[distPath] = struct{}{}
 		if isFileOrSymbolicLink(item.info) {
 			if err := syncFile(item.path, distPath, item.info); err != nil {

@@ -11,4 +11,6 @@
 .logs {
     max-height: 400px;
     overflow-y: auto;
+
+    scrollbar-color: #aaa #000;
 }
