@@ -8,4 +8,6 @@ export function LoadConfig():Promise<main.Config>;
 
 export function OpenDirectory():Promise<string>;
 
+export function ReadLogs():Promise<Array<string>>;
+
 export function SaveConfig(arg1:main.Config):Promise<void>;

@@ -30,7 +30,7 @@ func getLogPath() string {
 	if err != nil {
 		panic(err)
 	}
-	return fmt.Sprintf("%s/out.log", path.Dir(exePath))
+	return fmt.Sprintf("%s/data.log", path.Dir(exePath))
 }
 
 func readConfig() Config {
@@ -62,8 +62,6 @@ func writeConfig(config Config) error {
 	}
 	return nil
 }
-
-var config Config = readConfig()
 
 var watchers []*fsnotify.Watcher = make([]*fsnotify.Watcher, 0)
 

@@ -14,6 +14,10 @@ export function OpenDirectory() {
   return window['go']['main']['App']['OpenDirectory']();
 }
 
+export function ReadLogs() {
+  return window['go']['main']['App']['ReadLogs']();
+}
+
 export function SaveConfig(arg1) {
   return window['go']['main']['App']['SaveConfig'](arg1);
 }

@@ -1,15 +1,23 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"os"
 
 	"github.com/energye/systray"
-	"github.com/energye/systray/icon"
 )
 
+//go:embed build/trayicon.ico
+var trayicon embed.FS
+
 func onReady() {
-	systray.SetIcon(icon.Data)
+	icon, err := trayicon.ReadFile("build/trayicon.ico")
+	if err != nil {
+		panic(err)
+	}
+
+	systray.SetIcon(icon)
 	systray.SetTitle("Sync folders")
 	// systray.SetTooltip("")
 	// systray.SetOnClick(func(menu systray.IMenu) {
@@ -22,14 +30,13 @@ func onReady() {
 		menu.ShowMenu()
 		fmt.Println("SetOnRClick")
 	})
-	mShow := systray.AddMenuItem("Show", "Show the window")
+	mShow := systray.AddMenuItem("Toggle", "Toggle the window")
 	mShow.Click(func() {
-		// runtime.Show(app.ctx)
-		go openWindow()
-	})
-	mHide := systray.AddMenuItem("Hide", "Hide the window")
-	mHide.Click(func() {
-		closeWindow()
+		if app == nil {
+			go openWindow()
+		} else {
+			closeWindow()
+		}
 	})
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 	mQuit.Click(func() {
@@ -40,5 +47,6 @@ func onReady() {
 
 func onExit() {
 	// clean up here
+	systray.Quit()
 	os.Exit(0)
 }

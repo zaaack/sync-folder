@@ -12,6 +12,7 @@ import {
   Greet,
   LoadConfig,
   OpenDirectory,
+  ReadLogs,
   SaveConfig,
 } from '../wailsjs/go/main/App'
 import { main } from '../wailsjs/go/models'
@@ -55,6 +56,7 @@ function FolderInput(props: {
 function App() {
   const [config, setConfig] = useState(null as main.Config | null)
   const [isEditing, setIsEditing] = useState(false)
+  const [logs, setLogs] = useState([] as string[])
     function reload() {
         LoadConfig().then((c) => {
           setConfig(c)
@@ -63,6 +65,10 @@ function App() {
     }
   useEffect(() => {
     reload()
+      ReadLogs().then(setLogs)
+      setInterval(() => {
+        ReadLogs().then(setLogs)
+      }, 5000)
   }, [])
   if (!config) return <h1>Loading...</h1>
 
@@ -123,7 +129,7 @@ function App() {
               setIsEditing(true)
             }}
           >
-            Add folder
+            Add
           </Button>
           <Button
             disabled={!isEditing}
@@ -155,6 +161,14 @@ function App() {
         columns={columns}
         pagination={false}
       />
+      <div className=''>
+        <h2>Logs</h2>
+        <div id="logs">
+          {logs.map((v, i) => (
+            <div key={i}>{v}</div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

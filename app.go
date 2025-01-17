@@ -11,8 +11,7 @@ import (
 
 // App struct
 type App struct {
-	ctx    context.Context
-	config Config
+	ctx context.Context
 }
 
 // NewApp creates a new App application struct
@@ -24,7 +23,6 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.config = config
 }
 
 func (a *App) applicationMenu() *menu.Menu {
@@ -47,14 +45,17 @@ func (a *App) Greet(name string) string {
 }
 
 func (a *App) LoadConfig() Config {
-	return app.config
+	return readConfig()
 }
 
 func (a *App) SaveConfig(config Config) error {
-	a.config = config
 	syncConfigFolders(config)
 	err := writeConfig(config)
 	return err
+}
+
+func (a *App) ReadLogs() []string {
+	return logs
 }
 
 func (a *App) OpenDirectory() (string, error) {

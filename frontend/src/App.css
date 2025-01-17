@@ -7,3 +7,8 @@
     align-items: center;
     justify-content: space-between;
 }
+
+.logs {
+    max-height: 400px;
+    overflow-y: auto;
+}

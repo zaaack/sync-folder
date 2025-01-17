@@ -2,8 +2,11 @@ package main
 
 import (
 	"embed"
+	"io"
 	"os"
+	"time"
 
+	"github.com/energye/systray"
 	"github.com/sirupsen/logrus"
 	writer "github.com/sirupsen/logrus/hooks/writer"
 	"github.com/wailsapp/wails/v2"
@@ -26,7 +29,7 @@ func openWindow() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "wails",
+		Title:  "Sync Folder",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
@@ -50,13 +53,48 @@ func closeWindow() {
 	app = nil
 }
 
+var logs []string
+
+type LogWriter struct {
+	io.Writer
+}
+
+var lastCheckLogTime int64 = 0
+
+const DAY_IN_SECONDS = 24 * 60 * 60
+
+func (w *LogWriter) Write(p []byte) (n int, err error) {
+	logs = append(logs, string(p))
+	if len(logs) > 100 {
+		logs = logs[1:]
+	}
+
+	now := time.Now().Unix()
+
+	if now-lastCheckLogTime > DAY_IN_SECONDS*3 {
+		_, err = os.Stat(getLogPath() + ".old")
+		if err == nil {
+			os.Remove(getLogPath() + ".old")
+		}
+		os.Rename(getLogPath(), getLogPath()+".old")
+		lastCheckLogTime = now
+	}
+
+	return len(p), nil
+}
+
 func main() {
 	logFile, _ := os.OpenFile(getLogPath(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	logrus.AddHook(&writer.Hook{
 		Writer:    logFile,
 		LogLevels: []logrus.Level{logrus.InfoLevel},
 	})
-	syncConfigFolders(config)
+
+	logrus.AddHook(&writer.Hook{
+		Writer:    &LogWriter{},
+		LogLevels: []logrus.Level{logrus.InfoLevel},
+	})
+	syncConfigFolders(readConfig())
 	openWindow()
-	// systray.Run(onReady, onExit)
+	systray.Run(onReady, onExit)
 }
