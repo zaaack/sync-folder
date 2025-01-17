@@ -9,6 +9,7 @@ import {
   type TableColumnProps,
 } from 'antd'
 import {
+  Greet,
   LoadConfig,
   OpenDirectory,
   ReadLogs,
@@ -35,7 +36,7 @@ function FolderInput(props: {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            margin: '0 -12px',
+            margin: '0 -12px'
           }}
           onClick={(e) => {
             OpenDirectory().then((v) => {
@@ -57,19 +58,19 @@ function App() {
   const [config, setConfig] = useState(null as main.Config | null)
   const [isEditing, setIsEditing] = useState(false)
   const [logs, setLogs] = useState([] as string[])
-  function reload() {
-    LoadConfig().then((c) => {
-      setConfig(c)
-      setIsEditing(false)
-    })
-  }
+    function reload() {
+        LoadConfig().then((c) => {
+          setConfig(c)
+          setIsEditing(false)
+        })
+    }
   useEffect(() => {
     reload()
-    ReadLogs().then(setLogs)
-    setInterval(() => {
       ReadLogs().then(setLogs)
-    }, 5000)
-    WindowSetDarkTheme()
+      setInterval(() => {
+        ReadLogs().then(setLogs)
+      }, 5000)
+      WindowSetDarkTheme()
   }, [])
   if (!config) return <h1>Loading...</h1>
 
@@ -162,7 +163,7 @@ function App() {
         columns={columns}
         pagination={false}
       />
-      <div className="">
+      <div className=''>
         <h2>Logs</h2>
         <div className="logs">
           {logs.map((v, i) => (
