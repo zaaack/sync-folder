@@ -12,8 +12,9 @@ import (
 var trayicon embed.FS
 
 func toggleWindow() {
+	defer recover()
 	if app == nil {
-		go openWindow()
+		openWindow()
 	} else {
 		closeWindow()
 	}
@@ -29,7 +30,7 @@ func onReady() {
 	systray.SetTitle("Sync folders")
 	// systray.SetTooltip("")
 	systray.SetOnClick(func(menu systray.IMenu) {
-		toggleWindow()
+		menu.ShowMenu()
 	})
 	systray.SetOnRClick(func(menu systray.IMenu) {
 		menu.ShowMenu()

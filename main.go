@@ -21,13 +21,9 @@ var assets embed.FS
 
 var app *App
 
-func openWindow() {
-	if app != nil {
-		return
-	}
-	// Create an instance of the app structure
-	app = NewApp()
-	// Create application with options
+func runWindow() {
+	defer recover()
+
 	err := wails.Run(&options.App{
 		Title:  "Sync Folder",
 		Width:  1024,
@@ -51,7 +47,22 @@ func openWindow() {
 	}
 }
 
+func openWindow() {
+	if app != nil {
+		closeWindow()
+	}
+	// Create an instance of the app structure
+	app = NewApp()
+	// Create application with options
+	go runWindow()
+}
+
 func closeWindow() {
+	defer recover()
+	if app == nil || app.ctx == nil {
+		app = nil
+		return
+	}
 	runtime.Quit(app.ctx)
 	app = nil
 }
@@ -98,6 +109,10 @@ func main() {
 		LogLevels: []logrus.Level{logrus.InfoLevel},
 	})
 	syncConfigFolders(readConfig())
-	openWindow()
+
+	// Create an instance of the app structure
+	app = NewApp()
+	// Create application with options
+	runWindow()
 	systray.Run(onReady, onExit)
 }
