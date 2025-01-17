@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"io"
 	"os"
@@ -36,6 +37,9 @@ func openWindow() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		OnShutdown: func(ctx context.Context) {
+			app = nil
+		},
 		// Menu:             app.applicationMenu(),
 		Bind: []interface{}{
 			app,
