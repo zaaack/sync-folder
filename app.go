@@ -51,8 +51,8 @@ func (a *App) LoadConfig() Config {
 }
 
 func (a *App) SaveConfig(config Config) error {
-	syncConfigFolders(config)
 	err := writeConfig(config)
+	fmt.Println("save")
 	return err
 }
 

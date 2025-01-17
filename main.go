@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"embed"
+	"flag"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/energye/systray"
@@ -48,13 +52,8 @@ func runWindow() {
 }
 
 func openWindow() {
-	if app != nil {
-		closeWindow()
-	}
-	// Create an instance of the app structure
 	app = NewApp()
-	// Create application with options
-	go runWindow()
+	runWindow()
 }
 
 func closeWindow() {
@@ -78,13 +77,10 @@ var lastCheckLogTime int64 = 0
 const DAY_IN_SECONDS = 24 * 60 * 60
 
 func (w *LogWriter) Write(p []byte) (n int, err error) {
-	logs = append(logs, string(p))
-	if len(logs) > 100 {
-		logs = logs[1:]
-	}
+
+	windowStdin.Write([]byte("Log: " + string(p)))
 
 	now := time.Now().Unix()
-
 	if now-lastCheckLogTime > DAY_IN_SECONDS*3 {
 		_, err = os.Stat(getLogPath() + ".old")
 		if err == nil {
@@ -96,8 +92,32 @@ func (w *LogWriter) Write(p []byte) (n int, err error) {
 
 	return len(p), nil
 }
+func readLog() {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				// 标准输出已关闭，退出循环
+				break
+			}
+			// 处理其他错误
+			fmt.Println("读取标准输出时出错:", err)
+			return
+		}
+		// 处理读取到的每一行数据
+		fmt.Println("读取到的行:", line)
+		if strings.Index(line, "Log: ") == 0 {
+			logs = append(logs, line[5:])
+			if len(logs) > 100 {
+				logs = logs[1:]
+			}
+		}
+	}
 
-func main() {
+}
+func runTray() {
+
 	logFile, _ := os.OpenFile(getLogPath(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	logrus.AddHook(&writer.Hook{
 		Writer:    logFile,
@@ -109,10 +129,21 @@ func main() {
 		LogLevels: []logrus.Level{logrus.InfoLevel},
 	})
 	syncConfigFolders(readConfig())
-
-	// Create an instance of the app structure
-	app = NewApp()
-	// Create application with options
-	runWindow()
 	systray.Run(onReady, onExit)
+}
+
+func main() {
+	// go 获取 action 参数
+	action := flag.String("action", "", "action")
+	flag.Parse()
+	switch *action {
+	case "open-window":
+		go readLog()
+		openWindow()
+		return
+	default:
+		runTray()
+		return
+	}
+
 }
