@@ -53,7 +53,7 @@ func closeWindow() {
 	app = nil
 }
 
-var logs []string
+var logs []string = make([]string, 0)
 
 type LogWriter struct {
 	io.Writer
