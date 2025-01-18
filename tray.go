@@ -32,7 +32,6 @@ func execWindowProcess() {
 	if err != nil {
 		panic(err)
 	}
-	window.Start()
 
 	go func() {
 		reader := bufio.NewReader(windowStdout)
@@ -60,6 +59,8 @@ func execWindowProcess() {
 			}
 		}
 	}()
+	window.Run()
+	window = nil
 }
 
 func cancelWindowProcess() {
@@ -75,8 +76,8 @@ func cancelWindowProcess() {
 
 func toggleWindow() {
 	defer recover()
-	if window == nil || window.ProcessState == nil || window.ProcessState.Exited() {
-		execWindowProcess()
+	if window == nil {
+		go execWindowProcess()
 	} else {
 		cancelWindowProcess()
 	}
