@@ -75,7 +75,7 @@ func cancelWindowProcess() {
 
 func toggleWindow() {
 	defer recover()
-	if window == nil {
+	if window == nil || window.ProcessState == nil || window.ProcessState.Exited() {
 		execWindowProcess()
 	} else {
 		cancelWindowProcess()
@@ -92,11 +92,10 @@ func onReady() {
 	systray.SetTitle("Sync folders")
 	// systray.SetTooltip("")
 	systray.SetOnClick(func(menu systray.IMenu) {
-		menu.ShowMenu()
+		toggleWindow()
 	})
 	systray.SetOnRClick(func(menu systray.IMenu) {
 		menu.ShowMenu()
-		fmt.Println("SetOnRClick")
 	})
 	mShow := systray.AddMenuItem("Toggle", "Toggle the window")
 	mShow.Click(func() {
