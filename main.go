@@ -77,8 +77,14 @@ var lastCheckLogTime int64 = 0
 const DAY_IN_SECONDS = 24 * 60 * 60
 
 func (w *LogWriter) Write(p []byte) (n int, err error) {
+	if windowStdin != nil {
+		windowStdin.Write([]byte("Log:" + string(p) + "\n"))
+	}
 
-	windowStdin.Write([]byte("Log: " + string(p)))
+	logs = append(logs, string(p))
+	if len(logs) > 100 {
+		logs = logs[1:]
+	}
 
 	now := time.Now().Unix()
 	if now-lastCheckLogTime > DAY_IN_SECONDS*3 {
@@ -94,6 +100,7 @@ func (w *LogWriter) Write(p []byte) (n int, err error) {
 }
 func readLog() {
 	reader := bufio.NewReader(os.Stdin)
+
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -106,9 +113,10 @@ func readLog() {
 			return
 		}
 		// 处理读取到的每一行数据
+		line = strings.TrimSpace(line)
 		fmt.Println("读取到的行:", line)
-		if strings.Index(line, "Log: ") == 0 {
-			logs = append(logs, line[5:])
+		if strings.Index(line, "Log:") == 0 {
+			logs = append(logs, line[4:])
 			if len(logs) > 100 {
 				logs = logs[1:]
 			}
@@ -139,6 +147,7 @@ func main() {
 	switch *action {
 	case "open-window":
 		go readLog()
+		fmt.Println("init")
 		openWindow()
 		return
 	default:
