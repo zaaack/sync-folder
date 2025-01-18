@@ -2,10 +2,9 @@
 
 ## About
 
-This is the official Wails React-TS template.
+A simple and low memory(10mb) tray application for back up of your folders.
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+![](./docs/QQ20250118-091740.png)
 
 ## Live Development
 
