@@ -277,51 +277,60 @@ func syncFolder(src, dist string) (*fsnotify.Watcher, error) {
 	renamedFile := ""
 	go func() {
 		defer recover()
+		var t *time.Timer
+
 		for {
 			select {
 			case event, ok := <-watcher.Events:
-				if !ok {
-					return
+				if t != nil {
+					t.Stop()
 				}
-				logrus.Infof("watchEvent %s %s", event.Op, event.Name)
-				if event.Name == "" {
-					continue
-				}
-
-				srcPath := event.Name
-				distPath := getDistPathFromSrc(src, dist, srcPath)
-				if event.Op.Has(fsnotify.Create) {
-					srcInfo, err := os.Stat(srcPath)
-					if err != nil {
-						panic(err)
+				t = time.AfterFunc(time.Second*5, func() {
+					if !ok {
+						return
+					}
+					logrus.Infof("watchEvent %s %s", event.Op, event.Name)
+					if event.Name == "" {
+						return
 					}
 
-					if checkAndRename(src, dist, srcPath, renamedFile) {
-						continue
-					}
-					renamedFile = ""
-					if isFileOrSymbolicLink(srcInfo) {
+					srcPath := event.Name
+					distPath := getDistPathFromSrc(src, dist, srcPath)
+					if event.Op.Has(fsnotify.Create) {
+						srcInfo, err := os.Stat(srcPath)
+						if err != nil {
+							panic(err)
+						}
+
+						if checkAndRename(src, dist, srcPath, renamedFile) {
+							return
+						}
+						renamedFile = ""
+						if isFileOrSymbolicLink(srcInfo) {
+							if err := syncFile(srcPath, distPath, nil); err != nil {
+								logrus.Errorf("syncFile failed: %v", err)
+							}
+						}
+					} else if event.Op.Has(fsnotify.Remove) {
+						trashFile(distPath)
+					} else if event.Op.Has(fsnotify.Write) {
+						if err := syncFile(srcPath, distPath, nil); err != nil {
+							logrus.Errorf("syncFile failed: %v", err)
+						}
+					} else {
+						if event.Op.Has(fsnotify.Rename) {
+							if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+								renamedFile = distPath
+								return
+							}
+						}
 						if err := syncFile(srcPath, distPath, nil); err != nil {
 							logrus.Errorf("syncFile failed: %v", err)
 						}
 					}
-				} else if event.Op.Has(fsnotify.Remove) {
-					trashFile(distPath)
-				} else if event.Op.Has(fsnotify.Write) {
-					if err := syncFile(srcPath, distPath, nil); err != nil {
-						logrus.Errorf("syncFile failed: %v", err)
-					}
-				} else {
-					if event.Op.Has(fsnotify.Rename) {
-						if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-							renamedFile = distPath
-							continue
-						}
-					}
-					if err := syncFile(srcPath, distPath, nil); err != nil {
-						logrus.Errorf("syncFile failed: %v", err)
-					}
-				}
+				})
+				<-t.C
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
