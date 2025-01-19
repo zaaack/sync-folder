@@ -329,8 +329,6 @@ func syncFolder(src, dist string) (*fsnotify.Watcher, error) {
 						}
 					}
 				})
-				<-t.C
-
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
