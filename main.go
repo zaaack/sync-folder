@@ -136,7 +136,7 @@ func runTray() {
 		Writer:    &LogWriter{},
 		LogLevels: []logrus.Level{logrus.InfoLevel},
 	})
-	syncConfigFolders(readConfig())
+	go syncConfigFolders(readConfig())
 	systray.Run(onReady, onExit)
 }
 
