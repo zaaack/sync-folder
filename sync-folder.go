@@ -285,7 +285,7 @@ func syncFolder(src, dist string) (*fsnotify.Watcher, error) {
 				if t != nil {
 					t.Stop()
 				}
-				t = time.AfterFunc(time.Second*5, func() {
+				t = time.AfterFunc(time.Second*2, func() {
 					if !ok {
 						return
 					}
