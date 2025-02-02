@@ -121,19 +121,25 @@ function App() {
       },
     },
     {
-      title: 'Operate',
-      dataIndex: 'operate',
-      key: 'operate',
+      title: 'Action',
+      dataIndex: 'Action',
+      key: 'Action',
+      width: 20,
       render(value, record, index) {
         return (
-          <Popconfirm title="Are you sure to remove?" onConfirm={e=>{
-            console.log('index', index, config.folder_pairs)
-            config.folder_pairs = config.folder_pairs.filter((v, i) => i!== index)
-            console.log('index-after', index, config.folder_pairs)
-            setConfig(new main.Config(config))
-            setIsEditing(true)
-          }}>
-            <Button color='red' variant='outlined'>Del</Button>
+          <Popconfirm
+            title="Are you sure to remove?"
+            onConfirm={(e) => {
+              config.folder_pairs = config.folder_pairs.filter(
+                (v, i) => i !== index
+              )
+              setConfig(new main.Config(config))
+              setIsEditing(true)
+            }}
+          >
+            <Button size="small" color="red" variant="outlined">
+              Del
+            </Button>
           </Popconfirm>
         )
       },
