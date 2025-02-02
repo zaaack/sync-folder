@@ -4,6 +4,7 @@ import {
   Button,
   Input,
   notification,
+  Popconfirm,
   Space,
   Table,
   type TableColumnProps,
@@ -103,6 +104,22 @@ function App() {
               setIsEditing(true)
             }}
           />
+        )
+      },
+    },
+    {
+      title: 'Operate',
+      dataIndex: 'operate',
+      key: 'operate',
+      render(value, record, index) {
+        return (
+          <Popconfirm title="Are you sure to remove this folder pair?" onConfirm={e=>{
+            config.folder_pairs.splice(index, 1)
+            setConfig(new main.Config(config))
+            setIsEditing(true)
+          }}>
+            <Button color='danger'>Del</Button>
+          </Popconfirm>
         )
       },
     },
