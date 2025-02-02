@@ -18,6 +18,9 @@ import {
 import { main } from '../wailsjs/go/models'
 import { WindowSetDarkTheme } from '../wailsjs/runtime/runtime'
 import { FolderOpenOutlined } from '@ant-design/icons'
+import { Immer } from 'immer'
+
+const immer = new Immer()
 
 function FolderInput(props: {
   value: string
@@ -27,6 +30,10 @@ function FolderInput(props: {
   return (
     <Input
       value={value}
+      onChange={(e) => {
+        setValue(e.target.value)
+        props.onChange(e.target.value)
+      }}
       addonAfter={
         <div
           style={{
@@ -84,8 +91,11 @@ function App() {
           <FolderInput
             value={value}
             onChange={(e) => {
-              record.src = e
               setIsEditing(true)
+              config.folder_pairs = immer.produce(config.folder_pairs, (fp) => {
+                fp[index].src = e
+              })
+              setConfig(new main.Config(config))
             }}
           />
         )
@@ -100,8 +110,11 @@ function App() {
           <FolderInput
             value={value}
             onChange={(e) => {
-              record.dst = e
               setIsEditing(true)
+              config.folder_pairs = immer.produce(config.folder_pairs, (fp) => {
+                fp[index].dst = e
+              })
+              setConfig(new main.Config(config))
             }}
           />
         )
@@ -113,12 +126,14 @@ function App() {
       key: 'operate',
       render(value, record, index) {
         return (
-          <Popconfirm title="Are you sure to remove this folder pair?" onConfirm={e=>{
-            config.folder_pairs.splice(index, 1)
+          <Popconfirm title="Are you sure to remove?" onConfirm={e=>{
+            console.log('index', index, config.folder_pairs)
+            config.folder_pairs = config.folder_pairs.filter((v, i) => i!== index)
+            console.log('index-after', index, config.folder_pairs)
             setConfig(new main.Config(config))
             setIsEditing(true)
           }}>
-            <Button color='danger'>Del</Button>
+            <Button color='red' variant='outlined'>Del</Button>
           </Popconfirm>
         )
       },
@@ -157,7 +172,7 @@ function App() {
               )
               SaveConfig(config)
                 .then(() => {
-                  LoadConfig().then(setConfig)
+                  reload()
                   notification.success({
                     message: 'Saved',
                   })
@@ -175,6 +190,7 @@ function App() {
         </Space>
       </div>
       <Table
+        key={config.folder_pairs.length}
         dataSource={config.folder_pairs}
         columns={columns}
         pagination={false}
