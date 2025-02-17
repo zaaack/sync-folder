@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/energye/systray"
+	"github.com/sirupsen/logrus"
 )
 
 //go:embed build/trayicon.ico
@@ -132,18 +133,18 @@ func onExit() {
 }
 
 func restart() {
-	fmt.Println("重启程序...")
+	logrus.Info("重启程序...")
 
 	// 获取当前可执行文件的路径
 	exePath, err := os.Executable()
 	if err != nil {
-		fmt.Println("无法获取可执行文件路径:", err)
+		logrus.Error("无法获取可执行文件路径:", err)
 		return
 	}
 
 	// 使用 syscall.Exec 来替换当前进程
 	err = syscall.Exec(exePath, os.Args, os.Environ())
 	if err != nil {
-		fmt.Println("重启失败:", err)
+		logrus.Error("重启失败:", err)
 	}
 }
