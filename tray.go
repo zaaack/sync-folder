@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/energye/systray"
 )
@@ -102,8 +104,22 @@ func onReady() {
 	mShow.Click(func() {
 		toggleWindow()
 	})
+	mRestart := systray.AddMenuItem("Restart", "Restart the app")
+	mRestart.Click(func() {
+		cancelWindowProcess()
+		restart()
+	})
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 	mQuit.Click(onExit)
+
+	// 每天执行一次
+	ticker := time.NewTicker(time.Hour * 24)
+	go func() {
+		for range ticker.C {
+			syncConfigFolders(readConfig())
+		}
+	}()
+
 }
 
 func onExit() {
@@ -111,4 +127,21 @@ func onExit() {
 	cancelWindowProcess()
 	systray.Quit()
 	os.Exit(0)
+}
+
+func restart() {
+	fmt.Println("重启程序...")
+
+	// 获取当前可执行文件的路径
+	exePath, err := os.Executable()
+	if err != nil {
+		fmt.Println("无法获取可执行文件路径:", err)
+		return
+	}
+
+	// 使用 syscall.Exec 来替换当前进程
+	err = syscall.Exec(exePath, os.Args, os.Environ())
+	if err != nil {
+		fmt.Println("重启失败:", err)
+	}
 }
