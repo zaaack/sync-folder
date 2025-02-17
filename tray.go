@@ -19,6 +19,7 @@ var trayicon embed.FS
 var window *exec.Cmd
 var windowStdout io.ReadCloser
 var windowStdin io.WriteCloser
+var config Config = readConfig()
 
 func execWindowProcess() {
 	exe, err := os.Executable()
@@ -52,7 +53,8 @@ func execWindowProcess() {
 			// 处理读取到的每一行数据
 			fmt.Println("读取到的行:", line+"---")
 			if line == "save" {
-				syncConfigFolders(readConfig())
+				config = readConfig()
+				syncConfigFolders(config)
 			} else if line == "init" {
 				for _, log := range logs {
 					windowStdin.Write([]byte("Log:" + log + "\n"))
@@ -112,11 +114,11 @@ func onReady() {
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 	mQuit.Click(onExit)
 
-	// 每天执行一次
+	// 每天执行一次全量同步
 	ticker := time.NewTicker(time.Hour * 24)
 	go func() {
 		for range ticker.C {
-			syncConfigFolders(readConfig())
+			syncConfigFolders(config)
 		}
 	}()
 
