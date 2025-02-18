@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/energye/systray"
 	"github.com/sirupsen/logrus"
@@ -114,14 +113,6 @@ func onReady() {
 	})
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 	mQuit.Click(onExit)
-
-	// 每天执行一次全量同步
-	ticker := time.NewTicker(time.Hour * 24)
-	go func() {
-		for range ticker.C {
-			syncConfigFolders(config)
-		}
-	}()
 
 }
 

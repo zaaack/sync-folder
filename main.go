@@ -137,7 +137,16 @@ func runTray() {
 		LogLevels: []logrus.Level{logrus.InfoLevel},
 	})
 	go syncConfigFolders(readConfig())
+
+	// 每天执行一次全量同步
+	ticker := time.NewTicker(time.Hour * 24)
+	go func() {
+		for range ticker.C {
+			syncConfigFolders(config)
+		}
+	}()
 	systray.Run(onReady, onExit)
+	ticker.Stop()
 }
 
 func main() {
