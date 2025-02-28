@@ -56,6 +56,7 @@ func execWindowProcess() {
 				config = readConfig()
 				syncConfigFolders(config)
 			} else if line == "init" {
+				logs, _ := tailFile(getConfigPath(), 100)
 				for _, log := range logs {
 					windowStdin.Write([]byte("Log:" + log + "\n"))
 				}
@@ -138,4 +139,30 @@ func restart() {
 	if err != nil {
 		logrus.Error("重启失败:", err)
 	}
+}
+
+// tailFile 读取文件的最后 n 行
+func tailFile(filename string, n int) ([]string, error) {
+	var lines []string
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	lineCount := 0
+	for scanner.Scan() {
+		lineCount++
+		lines = append(lines, scanner.Text())
+		if lineCount > n {
+			lines = lines[1:]
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }

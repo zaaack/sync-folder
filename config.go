@@ -7,6 +7,7 @@ import (
 	"path"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -65,7 +66,7 @@ func writeConfig(config Config) error {
 
 var watchers []*fsnotify.Watcher = make([]*fsnotify.Watcher, 0)
 
-func syncConfigFolders(config Config) string {
+func syncConfigFolders(config Config) {
 	for _, w := range watchers {
 		w.Close()
 	}
@@ -79,5 +80,7 @@ func syncConfigFolders(config Config) string {
 			watchers = append(watchers, watcher)
 		}
 	}
-	return errors
+	if errors != "" {
+		logrus.Error("syncConfigFolders:" + errors)
+	}
 }

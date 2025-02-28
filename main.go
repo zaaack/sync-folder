@@ -81,10 +81,10 @@ func (w *LogWriter) Write(p []byte) (n int, err error) {
 		windowStdin.Write([]byte("Log:" + string(p) + "\n"))
 	}
 
-	logs = append(logs, string(p))
-	if len(logs) > 100 {
-		logs = logs[1:]
-	}
+	// logs = append(logs, string(p))
+	// if len(logs) > 100 {
+	// 	logs = logs[1:]
+	// }
 
 	now := time.Now().Unix()
 	if now-lastCheckLogTime > DAY_IN_SECONDS*3 {
@@ -127,6 +127,9 @@ func readLog() {
 func runTray() {
 
 	logFile, _ := os.OpenFile(getLogPath(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
 	logrus.AddHook(&writer.Hook{
 		Writer:    logFile,
 		LogLevels: []logrus.Level{logrus.InfoLevel},
