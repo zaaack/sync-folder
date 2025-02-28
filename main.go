@@ -109,12 +109,12 @@ func readLog() {
 				break
 			}
 			// 处理其他错误
-			fmt.Println("读取标准输出时出错:", err)
+			logrus.Println("读取标准输出时出错:", err)
 			return
 		}
 		// 处理读取到的每一行数据
 		line = strings.TrimSpace(line)
-		fmt.Println("读取到的行:", line)
+		logrus.Println("读取到的行:", line)
 		if strings.Index(line, "Log:") == 0 {
 			logs = append(logs, line[4:])
 			if len(logs) > 100 {

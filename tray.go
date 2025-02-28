@@ -46,7 +46,7 @@ func execWindowProcess() {
 					break
 				}
 				// 处理其他错误
-				fmt.Println("读取标准输出时出错:", err)
+				logrus.Println("读取标准输出时出错:", err)
 				return
 			}
 			line = strings.TrimSpace(line)
@@ -56,7 +56,7 @@ func execWindowProcess() {
 				config = readConfig()
 				syncConfigFolders(config)
 			} else if line == "init" {
-				logs, _ := tailFile(getConfigPath(), 100)
+				logs, _ := tailFile(getLogPath(), 100)
 				for _, log := range logs {
 					windowStdin.Write([]byte("Log:" + log + "\n"))
 				}

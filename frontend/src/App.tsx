@@ -204,7 +204,7 @@ function App() {
       <div className="">
         <h2>Logs</h2>
         <div className="logs">
-          {logs.map((v, i) => (
+          {logs.slice().reverse().map((v, i) => (
             <div key={i}>{v}</div>
           ))}
         </div>

@@ -39,12 +39,12 @@ func readConfig() Config {
 
 	configBytes, err := os.ReadFile(getConfigPath())
 	if err != nil {
-		fmt.Printf("read config error: %s\n", err.Error())
+		logrus.Errorf("read config error: %s\n", err.Error())
 	}
 
 	err = json.Unmarshal(configBytes, &config)
 	if err != nil {
-		fmt.Printf("parse config json error: %s\n", err.Error())
+		logrus.Errorf("parse config json error: %s\n", err.Error())
 	}
 	return config
 }
@@ -53,12 +53,12 @@ func writeConfig(config Config) error {
 	configPath := getConfigPath()
 	configBytes, err := json.Marshal(config)
 	if err != nil {
-		fmt.Printf("stringify config json error: %s\n", err.Error())
+		logrus.Errorf("stringify config json error: %s\n", err.Error())
 		return err
 	}
 	err = os.WriteFile(configPath, configBytes, 0644)
 	if err != nil {
-		fmt.Printf("write config json error: %s\n", err.Error())
+		logrus.Errorf("write config json error: %s\n", err.Error())
 		return err
 	}
 	return nil
@@ -81,6 +81,6 @@ func syncConfigFolders(config Config) {
 		}
 	}
 	if errors != "" {
-		logrus.Error("syncConfigFolders:" + errors)
+		logrus.Errorln("syncConfigFolders:" + errors)
 	}
 }
