@@ -145,7 +145,17 @@ func runTray() {
 	ticker := time.NewTicker(time.Hour * 24)
 	go func() {
 		for range ticker.C {
-			syncConfigFolders(config)
+			errors := ""
+			for _, fp := range config.FolderPairs {
+				err := diffAndSync(fp.Src, fp.Dst)
+				if err != nil {
+					errors += err.Error() + "\n"
+				}
+			}
+
+			if errors != "" {
+				logrus.Errorln("daily sync error:" + errors)
+			}
 		}
 	}()
 	systray.Run(onReady, onExit)

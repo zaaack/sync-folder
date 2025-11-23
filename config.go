@@ -68,9 +68,13 @@ var watchers []*fsnotify.Watcher = make([]*fsnotify.Watcher, 0)
 
 func syncConfigFolders(config Config) {
 	for _, w := range watchers {
-		w.Close()
+		err := w.Close()
+		if err != nil {
+			logrus.Errorf("close watcher error: %s\n", err.Error())
+		}
 	}
 	errors := ""
+	watchers = make([]*fsnotify.Watcher, 0)
 
 	for _, fp := range config.FolderPairs {
 		watcher, err := syncFolder(fp.Src, fp.Dst)
